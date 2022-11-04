@@ -1,0 +1,93 @@
+
+
+#include"reg52.h"
+
+int zhi=1;
+
+void iojiance();   //检测P2 I/O口信号输入
+void led(int);         //点亮LED函数，使用总线方式
+void delay1s();
+
+main()
+  {
+      
+        while(1)
+          {    
+                iojiance();
+                if(zhi!=1)
+                        led(zhi);
+            }
+    }
+
+void iojiance()
+  {
+      int lieshu=0,hangshu=0,anjian=0,a;
+        P2=0xf0;             //P2口后4位置高电平前4位置低电平，当有按键按下时确定列数
+        while(P2==0xf0);     //判断P2口是否有信号输入
+        lieshu=P2;         //保存列数
+
+      for(a=0;a<200;a++);
+
+        P2=0x0f;                 //P2口后4位置低电平前4位置高电平，当有按键按下时确定行数
+        while(P2==0x0f);        //判断P2口是否有信号输入
+        hangshu=P2;         //保存行数
+        anjian=lieshu | hangshu;
+        P2=0xf0;      //初始化P0
+
+        switch(anjian)
+          {
+                case 0x77: zhi=0x7f;break;
+                case 0x7b: zhi=0xbf;break;
+                case 0x7d: zhi=0xdf;break;
+                case 0x7e: zhi=0xef;break;
+
+                case 0xb7: zhi=0xf7;break;
+                case 0xbb: zhi=0xfb;break;
+                case 0xbd: zhi=0xfd;break;
+                case 0xbe: zhi=0xfe;break;
+
+                case 0xd7: zhi=0x3f;break;
+                case 0xdb: zhi=0x5f;break;
+                case 0xdd: zhi=0x6f;break;
+                case 0xde: zhi=0x77;break;
+
+                case 0xe7: zhi=0x7b;break;
+                case 0xeb: zhi=0x7d;break;
+                case 0xed: zhi=0x7e;break;
+                case 0xee: zhi=0x1f;break;
+                default:zhi=0;
+            }
+
+    }
+
+void led(int x)
+  {
+      int a;
+        P1=0xff;         //初始化P1
+
+        if(x==0)
+          while(1)
+              P1=0xf0;
+    for(a=0;a<200;a++);
+
+      P1 = x;         
+        delay1s();     //点亮相应led 1s
+        P1 = 0xff;        //关闭全部led
+        for(a=0;a<6000;a++);
+
+        P1 = 0;  
+        delay1s(); //打开led 1s
+
+        P1 = 0xff;        //初始化
+    }
+
+void delay1s(void)   //延时1s
+{
+    unsigned char a,b,c;
+    for(c=13;c>0;c--)
+        for(b=247;b>0;b--)
+            for(a=142;a>0;a--);
+}
+————————————————
+版权声明：本文为CSDN博主「xing_hai_」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/xing_hai_/article/details/84501346
